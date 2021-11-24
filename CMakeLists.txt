@@ -1,16 +1,22 @@
 cmake_minimum_required(VERSION 3.12)
 project(Boost-CMake)
 
+MESSAGE("BOOST-CMAKE PROJECT VERSION REQUIRED: ${BOOST_VERSION}")
+include(FetchContent)
+
 option(BOOST_DISABLE_TESTS "Do not build test targets, even if building standalone" OFF)
 
-set(BOOST_URL "https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2" CACHE STRING "Boost download URL")
-set(BOOST_URL_SHA256 "d73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee" CACHE STRING "Boost download URL SHA256 checksum")
+MESSAGE("BOOST-CMAKE PROJECT VERSION FETCH CONTENT REQUIRED: ${BOOST_VERSION}")
+set(UNDERSCORE_VER "")
+string(REPLACE "." "_" UNDERSCORE_VER ${BOOST_VERSION})
+string(CONCAT FILENAME "boost_" ${UNDERSCORE_VER})
+message(STATUS "Filename: ${FILENAME}")
+set(BOOST_URL "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${FILENAME}.tar.bz2")
+message(STATUS "Boost url: ${BOOST_URL}")
 
-include(FetchContent)
 FetchContent_Declare(
   Boost
   URL ${BOOST_URL}
-  URL_HASH SHA256=${BOOST_URL_SHA256}
 )
 FetchContent_GetProperties(Boost)
 
@@ -19,12 +25,14 @@ if(NOT Boost_POPULATED)
   FetchContent_Populate(Boost)
   message(STATUS "Fetching Boost - done")
   set(BOOST_SOURCE ${boost_SOURCE_DIR})
+  set(BOOST_INCLUDE ${boost_INCLUDE_DIR})
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 include(CheckBoostVersion)
 
 message(STATUS "Boost found: ${BOOST_VERSION} ${BOOST_SOURCE}")
+message(STATUS "Boost includes: ${BOOST_VERSION} ${BOOST_INCLUDE}")
 
 include(StandaloneBuild)
 include(PlatformDetect)
